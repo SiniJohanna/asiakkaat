@@ -5,6 +5,9 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
+<style>
+
+</style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </head>
 <body>
@@ -13,7 +16,7 @@
 		<tr>
 			<th>Hakusana:</th>
 			<th><input type ="text" id="haku"></th>
-			<th><button>Hae</button></th>
+			<th><input type="button" value="Hae" id="btn"></th>
 		</tr>				
 		<tr>
 			<th>Etunimi</th>
@@ -27,7 +30,24 @@
 </table>
 <script>
 $(document).ready(function(){
-	$.ajax({url:"asiakkaat", type:"GET", dataType:"json", success:function(result){//Funktio palauttaa tiedot json-objektina		
+	haeAsiakkaat();
+	$("#btn").click(function() {
+		console.log($("#haku").val());
+		haeAsiakkaat();
+	});
+	
+	$(document.body).on("keydown", function(event) {
+		if (event.which == 13) {
+			haeAsiakkaat();
+		}
+	});
+	$("#haku").focus();
+	
+	
+});	
+function haeAsiakkaat() {
+	$("#listaus tbody").empty();
+	$.ajax({url:"asiakkaat/"+$("#haku").val(), type:"GET", dataType:"json", success:function(result){//Funktio palauttaa tiedot json-objektina		
 		console.log(result);
 		$.each(result.asiakkaat, function(i, field){  
         	var htmlStr;
@@ -40,7 +60,7 @@ $(document).ready(function(){
         	$("#listaus tbody").append(htmlStr);
         });	
     }});
-});	
+}
 
 </script>
 </body>
