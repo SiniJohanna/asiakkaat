@@ -6,6 +6,12 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <style>
+tr {
+	background-color: lightblue;
+}
+#btn {
+	color: blue;
+}
 
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -15,7 +21,7 @@
 	<thead>
 		<tr>
 			<th>Hakusana:</th>
-			<th><input type ="text" id="haku"></th>
+			<th colspan=2><input type ="text" id="haku"></th>
 			<th><input type="button" value="Hae" id="btn"></th>
 		</tr>				
 		<tr>
