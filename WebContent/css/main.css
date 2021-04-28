@@ -1,0 +1,26 @@
+thead tr {
+	background-color: lightblue;
+}
+#btn {
+	color: blue;
+}
+#uusiAsiakas {
+	cursor: pointer;
+}
+.poista {
+	cursor: pointer;
+	color: red;
+}
+table {
+	border-collapse: collapse;
+	
+ 	border-style: 1px solid black;
+}
+table tbody tr:hover {
+	background-color: #ddd;
+}
+
+td, th {
+  border: 1px solid black;
+  padding: 5px;
+}

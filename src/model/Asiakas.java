@@ -2,18 +2,18 @@ package model;
 
 public class Asiakas {
 	private int id;
-	private String eNimi, sNimi, puhNo, email;
+	private String etunimi, sukunimi, puhelin, email;
 	
 	public Asiakas() {
 		super();
 	}
 
-	public Asiakas(int id, String eNimi, String sNimi, String puhNo, String email) {
+	public Asiakas(int id, String etunimi, String sukunimi, String puhelin, String email) {
 		super();
 		this.id = id;
-		this.eNimi = eNimi;
-		this.sNimi = sNimi;
-		this.puhNo = puhNo;
+		this.etunimi = etunimi;
+		this.sukunimi = sukunimi;
+		this.puhelin = puhelin;
 		this.email = email;
 	}
 
@@ -25,28 +25,28 @@ public class Asiakas {
 		this.id = id;
 	}
 
-	public String geteNimi() {
-		return eNimi;
+	public String getEtunimi() {
+		return etunimi;
 	}
 
-	public void seteNimi(String eNimi) {
-		this.eNimi = eNimi;
+	public void setEtunimi(String etuimi) {
+		this.etunimi = etuimi;
 	}
 
-	public String getsNimi() {
-		return sNimi;
+	public String getSukunimi() {
+		return sukunimi;
 	}
 
-	public void setsNimi(String sNimi) {
-		this.sNimi = sNimi;
+	public void setSukunimi(String sukunimi) {
+		this.sukunimi = sukunimi;
 	}
 
-	public String getPuhNo() {
-		return puhNo;
+	public String getPuhelin() {
+		return puhelin;
 	}
 
-	public void setPuhNo(String puhNo) {
-		this.puhNo = puhNo;
+	public void setPuhelin(String puhelin) {
+		this.puhelin = puhelin;
 	}
 
 	public String getEmail() {
@@ -59,9 +59,11 @@ public class Asiakas {
 
 	@Override
 	public String toString() {
-		return "Asiakas [id=" + id + ", eNimi=" + eNimi + ", sNimi=" + sNimi + ", puhNo=" + puhNo + ", email=" + email
-				+ "]";
+		return "Asiakas [id=" + id + ", etunimi=" + etunimi + ", sukunimi=" + sukunimi + ", puhelin=" + puhelin
+				+ ", email=" + email + "]";
 	}
+
+	
 	
 	
 
