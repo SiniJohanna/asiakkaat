@@ -5,17 +5,16 @@
 <head>
 <meta charset="UTF-8">
 <script src="scripts/main.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.19.3/jquery.validate.min.js"></script>
 <link rel="stylesheet" type="text/css" href="css/main.css">
-<title>Insert title here</title>
+<title>Asiakkaan lisäys</title>
 </head>
 <body>
 <form id="tiedot">
 	<table>
 		<thead>	
 			<tr>
-				<th colspan="5"><span id="takaisin">Takaisin listaukseen</span></th>
+				<th colspan="3" id="ilmo"></th>
+				<th colspan="2"><a href="listaaasiakkaat.jsp" id="takaisin">Takaisin listaukseen</a></th>
 			</tr>		
 			<tr>
 				<th>Etunimi</th>
@@ -31,7 +30,7 @@
 				<td><input type="text" name="sukunimi" id="sukunimi"></td>
 				<td><input type="text" name="puhelin" id="puhelin"></td>
 				<td><input type="text" name="email" id="email"></td> 
-				<td><input type="submit" id="tallenna" value="Lisää"></td>
+				<td><input type="button" id="tallenna" value="Lisää" onclick="lisaaTiedot()"></td>
 			</tr>
 		</tbody>
 	</table>
@@ -39,64 +38,75 @@
 <span id="ilmo"></span>
 </body>
 <script>
-$(document).ready(function(){
-	$("#takaisin").click(function(){
-		document.location="listaaasiakkaat.jsp";
-	});
-	$("#tiedot").validate({						
-		rules: {
-			etunimi:  {
-				required: true,
-				minlength: 3				
-			},	
-			sukunimi:  {
-				required: true,
-				minlength: 2				
-			},
-			puhelin:  {
-				required: true,
-				minlength: 1
-			},	
-			email:  {
-				required: true,
-				minlength: 4
-			}	
-		},
-		messages: {
-			etunimi: {     
-				required: "Puuttuu",
-				minlength: "Liian lyhyt"			
-			},
-			sukunimi: {
-				required: "Puuttuu",
-				minlength: "Liian lyhyt"
-			},
-			puhelin: {
-				required: "Puuttuu",
-				minlength: "Liian lyhyt"
-			},
-			email: {
-				required: "Puuttuu",
-				minlength: "Liian lyhyt"
-			}
-		},			
-		submitHandler: function(form) {	
-			lisaaTiedot();
-		}		
-	}); 	
-});
-//funktio tietojen lisäämistä varten. Kutsutaan backin POST-metodia ja välitetään kutsun mukana uudet tiedot json-stringinä.
-//POST /autot/
-function lisaaTiedot(){	
-	var formJsonStr = formDataJsonStr($("#tiedot").serializeArray()); //muutetaan lomakkeen tiedot json-stringiksi
-	$.ajax({url:"asiakkaat/", data:formJsonStr, type:"POST", dataType:"json", success:function(result) { //result on joko {"response:1"} tai {"response:0"}       
-		if(result.response==0){
-      	$("#ilmo").html("Asiakkaan lisääminen epäonnistui.");
-      }else if(result.response==1){			
-      	$("#ilmo").html("Asiakkaan lisääminen onnistui.");
-      	$("#etunimi", "#sukunimi", "#puhelin", "#email").val("");
-		}
-  }});	
+function tutkiKey(event){
+	if(event.keyCode==13){//Enter
+		lisaaTiedot();
+	}
+	
 }
+
+document.getElementById("etunimi").focus();
+
+function lisaaTiedot(){	
+	var ilmo="";
+	if(document.getElementById("etunimi").value.length<3){
+		ilmo="Nimi on liian lyhyt!";		
+	}else if(document.getElementById("sukunimi").value.length<2){
+		ilmo="Nimi on liian lyhyt!";		
+	}else if(document.getElementById("puhelin").value.length<1){
+		ilmo="Numero on liian lyhyt!";		
+	}else if(document.getElementById("puhelin").value*1!=document.getElementById("puhelin").value){
+		ilmo="pitää olla numeroita!";		
+	}else if(document.getElementById("email").value.length<5){
+		ilmo="Sähköposti on liian lyhyt!";		
+	}
+	if(ilmo!=""){
+		document.getElementById("ilmo").innerHTML=ilmo;
+		setTimeout(function(){ document.getElementById("ilmo").innerHTML=""; }, 3000);
+		return;
+	}
+	document.getElementById("etunimi").value=siivoa(document.getElementById("etunimi").value);
+	document.getElementById("sukunimi").value=siivoa(document.getElementById("sukunimi").value);
+	document.getElementById("puhelin").value=siivoa(document.getElementById("puhelin").value);
+	document.getElementById("email").value=siivoa(document.getElementById("email").value);	
+	
+	var formJsonStr = formDataToJSON(document.getElementById("tiedot")); //muutetaan lomakkeen tiedot json-stringiksi
+	//Lähetään uudet tiedot backendiin
+	fetch("asiakkaat",{//Lähetetään kutsu backendiin
+	      method: 'POST',
+	      body:formJsonStr
+	    })
+	.then( function (response) {//Odotetaan vastausta ja muutetaan JSON-vastaus objektiksi		
+		return response.json()
+	})
+	.then( function (responseJson) {//Otetaan vastaan objekti responseJson-parametrissä	
+		var vastaus = responseJson.response;		
+		if(vastaus==0){
+			document.getElementById("ilmo").innerHTML= "Asiakastiedon lisääminen epäonnistui";
+      	}else if(vastaus==1){	        	
+      		document.getElementById("ilmo").innerHTML= "Asiakastiedon lisääminen onnistui";			      	
+		}
+		setTimeout(function(){ document.getElementById("ilmo").innerHTML=""; }, 5000);
+	});	
+	document.getElementById("tiedot").reset(); //tyhjennetään tiedot -lomake
+}
+
+function siivoa(teksti){
+	teksti=teksti.replace("<","");
+	teksti=teksti.replace(";","");
+	teksti=teksti.replace("'","''");
+	return teksti;
+}
+
+function formDataToJSON(data){
+	var returnStr="{";
+	for(var i=0; i<data.length; i++){		
+		returnStr+="\"" +data[i].name + "\":\"" + data[i].value + "\",";
+	}	
+	returnStr = returnStr.substring(0, returnStr.length - 1); //poistetaan viimeinen pilkku
+	returnStr+="}";
+	return returnStr;
+}
+
 </script>
 </html>

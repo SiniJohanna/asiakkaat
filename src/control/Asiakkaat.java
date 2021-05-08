@@ -39,12 +39,16 @@ public class Asiakkaat extends HttpServlet {
 			String asiakas_id = pathInfo.replace("/haeyksi/", ""); //poistetaan polusta "/haeyksi/", j�ljelle j�� rekno		
 			int id = Integer.parseInt(asiakas_id);
 			Asiakas asiakas = dao.etsiAsiakas(id);
+			if (asiakas == null) {
+				strJSON = "{}";				
+			} else {
 			JSONObject JSON = new JSONObject();
 			JSON.put("etunimi", asiakas.getEtunimi());
 			JSON.put("sukunimi", asiakas.getSukunimi());
 			JSON.put("puhelin", asiakas.getPuhelin());
 			JSON.put("email", asiakas.getEmail());	
 			strJSON = JSON.toString();
+			}
 		}else{ //Haetaan hakusanan mukaiset autot
 			String hakusana = pathInfo.replace("/", "");
 			asiakkaat = dao.listaaKaikki(hakusana);

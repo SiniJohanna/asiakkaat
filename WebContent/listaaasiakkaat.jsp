@@ -4,24 +4,24 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>Asiakaslista</title>
 <style>
 
 
 </style>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body>
 <table id="listaus">
 	<thead>
 		<tr>
-			<th colspan=5><span id="uusiAsiakas">Lisää uusi asiakas</span></th>
+			<th colspan="4" id="ilmo"></th>
+			<th><a id="uusiAsiakas" href="lisaaasiakas.jsp">Lisää uusi asiakas</a></th>
 		</tr>
 		<tr>
 			<th>Hakusana:</th>
-			<th colspan=3><input type ="text" id="haku"></th>
-			<th><input type="button" value="Hae" id="btn"></th>
+			<th colspan=3><input type ="text" id="hakusana"></th>
+			<th><input type="button" value="hae" id="hakunappi" onclick="haeAsiakkaat()"></th>
 		</tr>				
 		<tr>
 			<th>Etunimi</th>
@@ -31,63 +31,65 @@
 			<th></th>						
 		</tr>
 	</thead>
-	<tbody>
+	<tbody id = "tbody">
 	</tbody>
 </table>
 <script>
-$(document).ready(function(){
-	
-	$("#uusiAsiakas").click(function() {
-		document.location="lisaaasiakas.jsp";
-	});
-	
-	haeAsiakkaat();
-	$("#btn").click(function() {
-		console.log($("#haku").val());
-		haeAsiakkaat();
-	});
-	
-	$(document.body).on("keydown", function(event) {
-		if (event.which == 13) {
-			haeAsiakkaat();
-		}
-	});
-	$("#haku").focus();
-	
-	
-});	
-function haeAsiakkaat() {
-	$("#listaus tbody").empty();
-	$.ajax({url:"asiakkaat/"+$("#haku").val(), type:"GET", dataType:"json", success:function(result){//Funktio palauttaa tiedot json-objektina		
-		console.log(result);
-		$.each(result.asiakkaat, function(i, field){  
-        	var htmlStr;
+haeAsiakkaat();
+document.getElementById("hakusana").focus();
+
+function tutkiKey(event){
+	if(event.keyCode==13){//Enter
+		haeTiedot();
+	}		
+}
+
+function haeAsiakkaat(){	
+	document.getElementById("tbody").innerHTML = "";
+	fetch("asiakkaat/" + document.getElementById("hakusana").value,{//Lähetetään kutsu backendiin
+	      method: 'GET'
+	    })
+	.then(function (response) {//Odotetaan vastausta ja muutetaan JSON-vastaus objektiksi
+		return response.json()	
+	})
+	.then(function (responseJson) {//Otetaan vastaan objekti responseJson-parametrissä		
+		var asiakkaat = responseJson.asiakkaat;	
+		var htmlStr="";
+		for(var i=0;i<asiakkaat.length;i++){			
         	htmlStr+="<tr>";
-        	htmlStr+="<td>"+field.etunimi+"</td>";
-        	htmlStr+="<td>"+field.sukunimi+"</td>";
-        	htmlStr+="<td>"+field.puhelin+"</td>";
-        	htmlStr+="<td>"+field.email+"</td>"; 
-        	htmlStr+="<td><a href='muutaasiakas.jsp?id="+field.id+"'>Muuta</a>&nbsp;"; 
-        	htmlStr+="<span class='poista' onclick=poista("+field.id+")>Poista</span></td>"; 
-        	htmlStr+="</tr>";
-        	$("#listaus tbody").append(htmlStr);
-        });	
-    }});
+        	htmlStr+="<td>"+asiakkaat[i].etunimi+"</td>";
+        	htmlStr+="<td>"+asiakkaat[i].sukunimi+"</td>";
+        	htmlStr+="<td>"+asiakkaat[i].puhelin+"</td>";
+        	htmlStr+="<td>"+asiakkaat[i].email+"</td>";  
+        	htmlStr+="<td><a href='muutaasiakas.jsp?id="+asiakkaat[i].id+"'>Muuta</a>&nbsp;";
+        	htmlStr+="<span class='poista' onclick=poista('"+asiakkaat[i].id+"')>Poista</span></td>";
+        	htmlStr+="</tr>";        	
+		}
+		document.getElementById("tbody").innerHTML = htmlStr;		
+	})	
 }
-function poista(id) {
-	console.log(id);
-	if(confirm("Poista asiakas " + id +"?")){
-		$.ajax({url:"asiakkaat/"+id, type:"DELETE", dataType:"json", success:function(result) { //result on joko {"response:1"} tai {"response:0"}
-	        if(result.response==0){
-	        	$("#ilmo").html("Asiakkaan poisto epäonnistui.");
-	        }else if(result.response==1){
-	        	$("#rivi_"+id).css("background-color", "red"); //Värjätään poistetun asiakkaan rivi
-	        	alert("Asiakkaan " + id +" poisto onnistui.");
+
+function poista(id){
+	if(confirm("Poista asiakas " + id +"?")){	
+		fetch("asiakkaat/"+ id,{//Lähetetään kutsu backendiin
+		      method: 'DELETE'		      	      
+		    })
+		.then(function (response) {//Odotetaan vastausta ja muutetaan JSON-vastaus objektiksi
+			return response.json()
+		})
+		.then(function (responseJson) {//Otetaan vastaan objekti responseJson-parametrissä		
+			var vastaus = responseJson.response;		
+			if(vastaus==0){
+				document.getElementById("ilmo").innerHTML= "Asiakastiedon poisto epäonnistui.";
+	        }else if(vastaus==1){	        	
+	        	document.getElementById("ilmo").innerHTML="Asiakastiedon " + id +" poisto onnistui.";
 				haeAsiakkaat();        	
-			}
-	    }});
-	}
+			}	
+			setTimeout(function(){ document.getElementById("ilmo").innerHTML=""; }, 5000);
+		})		
+	}	
 }
+
 
 </script>
 </body>
